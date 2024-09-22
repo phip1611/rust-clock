@@ -49,6 +49,8 @@ fn main() {
         panic!("Failed to create window by minifb: {:#?}", e);
     });
 
+    window.set_target_fps(30);
+
     while window.is_open() && !window.is_key_down(minifb::Key::Escape) {
         // clear screen
         let _ = geometry.draw_box(&mut buffer, 0, 0, WIDTH, HEIGHT, 0xffffff);
