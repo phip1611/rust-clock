@@ -1,33 +1,46 @@
-/// Wall clock time abstraction.
+/// Wall clock time abstraction to get the angles of the (h,m,s)-indicators.
 #[derive(Debug)]
 pub struct Clock {
     time: time::Time,
+    /// Whether the indicator only shows fixed values (false) or if the
+    /// angle should be reported in fluid mode (true).
+    fixed_mode: bool,
 }
 
 impl Clock {
-    pub fn new() -> Self {
+    pub fn new(fixed_mode: bool) -> Self {
         let now_local = time::OffsetDateTime::now_local().unwrap();
         Self {
             time: now_local.time(),
+            fixed_mode,
         }
     }
 
-    #[cfg(test)]
-    pub fn new_test(time: time::Time) -> Self {
-        Self { time }
-    }
-
     fn hour_indicator_degree(&self) -> f32 {
-        let hour_12 = (self.time.hour() % 12) as f32;
+        let mut hour_12 = (self.time.hour() % 12) as f32;
+        if !self.fixed_mode {
+            let hour_fraction = self.time.minute() as f32 / 60.0;
+            hour_12 += hour_fraction;
+        }
         normalize_clock_indicator_degree(hour_12, 12)
     }
 
     fn minute_indicator_degree(&self) -> f32 {
-        normalize_clock_indicator_degree(self.time.minute() as f32, 60)
+        let mut minute = self.time.minute() as f32;
+        if !self.fixed_mode {
+            let minute_fraction = self.time.second() as f32 / 60.0;
+            minute += minute_fraction;
+        }
+        normalize_clock_indicator_degree(minute, 60)
     }
 
     fn second_indicator_degree(&self) -> f32 {
-        normalize_clock_indicator_degree(self.time.second() as f32, 60)
+        let mut second = self.time.second() as f32;
+        if !self.fixed_mode {
+            let second_fraction = self.time.millisecond() as f32 / 1000.0;
+            second += second_fraction;
+        }
+        normalize_clock_indicator_degree(second, 60)
     }
 
     /// Calculates the indicator end coordinates of the hour indicator on a
@@ -61,12 +74,6 @@ impl Clock {
         scale_factor: usize,
     ) -> (usize /* x */, usize /* y */) {
         calc_destination_coordinates(self.second_indicator_degree(), x_orig, y_orig, scale_factor)
-    }
-}
-
-impl Default for Clock {
-    fn default() -> Self {
-        Clock::new()
     }
 }
 

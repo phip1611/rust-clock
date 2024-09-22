@@ -5,3 +5,5 @@ the coordinates of the hour, minute, and second indicators of an analog wall
 clock to create a digital representation. See `lib.rs`.
 
 The drawing itself is done by the libs `minifb` and `minifb_geometry`.
+
+![wall-clock-side-by-side.gif](wall-clock-side-by-side.gif)
